@@ -1,0 +1,47 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.3
+    container_name: standalone-keycloak
+    command: start-dev
+    environment:
+      # Database Settings
+      - KC_DB=postgres
+      - KC_DB_URL_HOST=postgresql
+      - KC_DB_URL_DATABASE=keycloak
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=123456
+
+      # Admin Credentials
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+
+      # Enable Health and Metrics
+      - KC_HEALTH_ENABLED=true
+      - KC_METRICS_ENABLED=true
+    ports:
+      - "8080:8080"
+      - "9000:9000" # Note: Port 9000 is often for Keycloak's internal/management interface, keeping it can be useful.
+    depends_on:
+      postgresql:
+        condition: service_healthy
+
+  postgresql:
+    image: 'postgres:17.5-alpine'
+    container_name: keycloak-postgresql
+    volumes:
+      - keycloak-postgres-volume:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123456
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  keycloak-postgres-volume:
+    name: keycloak-postgres-volume
