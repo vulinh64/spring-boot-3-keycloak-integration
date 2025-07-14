@@ -1,0 +1,15 @@
+application-properties:
+  realm-name: spring-boot-realm
+  client-name: spring-boot-client
+  admin-privilege-urls:
+    - /test/admin/**
+server.port: 8088
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/${application-properties.realm-name}
+logging.level:
+  # If you are curious about how Spring Security OAuth2 works behind the scene
+  org.springframework.security.oauth2: TRACE
