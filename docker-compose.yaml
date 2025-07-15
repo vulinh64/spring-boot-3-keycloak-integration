@@ -1,5 +1,7 @@
 services:
   keycloak:
+    networks:
+      - keycloak-network
     image: quay.io/keycloak/keycloak:26.3
     container_name: standalone-keycloak
     command: start-dev
@@ -26,6 +28,8 @@ services:
         condition: service_healthy
 
   postgresql:
+    networks:
+      - keycloak-network
     image: 'postgres:17.5-alpine'
     container_name: keycloak-postgresql
     volumes:
@@ -45,3 +49,7 @@ services:
 volumes:
   keycloak-postgres-volume:
     name: keycloak-postgres-volume
+
+networks:
+  keycloak-network:
+    driver: bridge
