@@ -52,8 +52,9 @@ public class SecurityConfig {
         .authorizeHttpRequests(
             customizer ->
                 customizer
-                    .requestMatchers(
-                        applicationProperties.adminPrivilegeUrls().toArray(String[]::new))
+                    .requestMatchers(asArray(applicationProperties.noAuthUrls()))
+                    .permitAll()
+                    .requestMatchers(asArray(applicationProperties.adminPrivilegeUrls()))
                     .hasAuthority(UserRole.ROLE_ADMIN.name())
                     .anyRequest()
                     .authenticated())
@@ -90,6 +91,10 @@ public class SecurityConfig {
     source.registerCorsConfiguration("/**", config);
 
     return source;
+  }
+
+  private static String[] asArray(List<String> list) {
+    return list.toArray(String[]::new);
   }
 
   // Customized UserDetails object

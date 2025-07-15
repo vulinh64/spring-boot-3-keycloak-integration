@@ -1,20 +1,23 @@
-package com.vulinh.controller;
+package com.vulinh.controller.rest;
 
+import com.vulinh.controller.api.TestAPI;
 import com.vulinh.utils.SecurityUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/test")
-public class Controller {
+public class TestController implements TestAPI {
 
-  @GetMapping
+  @Override
+  public String free() {
+    return "Hello!";
+  }
+
+  @Override
   public String hello() {
     return "Hello, World!";
   }
 
-  @GetMapping("/admin")
+  @Override
   public String adminAccess() {
     return "Hello %s".formatted(SecurityUtils.getUserDetails().username());
   }

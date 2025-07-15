@@ -3,6 +3,14 @@ application-properties:
   client-name: spring-boot-client
   admin-privilege-urls:
     - /test/admin/**
+  no-auth-urls:
+    # OpenAPI Swagger URLs
+    - /swagger-ui.html
+    - /swagger-ui/**
+    - /v3/api-docs/**
+    - /v3/api-docs.yaml
+    # Test no-auth URLs:
+    - /test/free
 server.port: 8088
 spring:
   security:
