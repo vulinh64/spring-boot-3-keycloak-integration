@@ -9,7 +9,9 @@ application-properties:
     - /swagger-ui/**
     - /v3/api-docs/**
     - /v3/api-docs.yaml
-    # Test no-auth URLs:
+    # Actuator endpoints:
+    - /actuator/**
+    # Custom no-auth URLs:
     - /test/free
 server.port: 8088
 spring:

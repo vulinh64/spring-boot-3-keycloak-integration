@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -45,7 +44,7 @@ public class SecurityConfig {
                                 XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
                     .contentSecurityPolicy(cps -> cps.policyDirectives("script-src 'self'")))
         .csrf(AbstractHttpConfigurer::disable)
-        .cors(Customizer.withDefaults())
+        .cors(customizer -> customizer.configurationSource(corsConfigurationSource()))
         .sessionManagement(
             sessionManagementConfigurer ->
                 sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -74,23 +73,22 @@ public class SecurityConfig {
     return RoleHierarchyImpl.fromHierarchy(roleHierarchy);
   }
 
-  @Bean
-  public CorsConfigurationSource corsConfigurationSource() {
-    var source = new UrlBasedCorsConfigurationSource();
+  private static CorsConfigurationSource corsConfigurationSource() {
+    var corsConfigurationSource = new UrlBasedCorsConfigurationSource();
 
-    var config = new CorsConfiguration();
+    var corsConfiguration = new CorsConfiguration();
 
-    config.setAllowCredentials(true);
+    corsConfiguration.setAllowCredentials(true);
 
     var everything = List.of("*");
 
-    config.setAllowedOriginPatterns(everything);
-    config.setAllowedHeaders(everything);
-    config.setAllowedMethods(everything);
+    corsConfiguration.setAllowedOriginPatterns(everything);
+    corsConfiguration.setAllowedHeaders(everything);
+    corsConfiguration.setAllowedMethods(everything);
 
-    source.registerCorsConfiguration("/**", config);
+    corsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
 
-    return source;
+    return corsConfigurationSource;
   }
 
   private static String[] asArray(List<String> list) {
