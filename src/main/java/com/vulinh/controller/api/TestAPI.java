@@ -10,7 +10,7 @@ public interface TestAPI {
   String free();
 
   @GetMapping
-  String hello();
+  String normalAccess();
 
   @GetMapping("/admin")
   String adminAccess();

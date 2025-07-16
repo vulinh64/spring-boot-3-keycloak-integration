@@ -13,7 +13,7 @@ public class TestController implements TestAPI {
   }
 
   @Override
-  public String hello() {
+  public String normalAccess() {
     return "Hello, World!";
   }
 

@@ -1,4 +1,20 @@
 services:
+  spring-boot-3-keycloak:
+    image: spring-boot-3-keycloak:1.0
+    networks:
+      - keycloak-network
+    container_name: spring-boot-3-keycloak
+    environment:
+      - KEYCLOAK_HOST=keycloak:8080
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8088:8088"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+
   keycloak:
     networks:
       - keycloak-network
@@ -25,12 +41,12 @@ services:
       - KC_HOSTNAME=keycloak
     ports:
       - "8080:8080"
-      - "9000:9000"
+      - "9000:9000" # Note: Port 9000 is often for Keycloak's internal/management interface, keeping it can be useful.
     depends_on:
       postgresql:
         condition: service_healthy
     healthcheck:
-      test: [ 'CMD-SHELL', '[ -f /tmp/HealthCheck.java ] || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { java.net.URI uri = java.net.URI.create(args[0]); System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)uri.toURL().openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://localhost:9000/health/live' ]
+      test: ['CMD-SHELL', '[ -f /tmp/HealthCheck.java ] || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { java.net.URI uri = java.net.URI.create(args[0]); System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)uri.toURL().openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://localhost:9000/health/live']
       interval: 5s
       timeout: 5s
       retries: 15

@@ -15,11 +15,9 @@ application-properties:
     - /test/free
 server.port: 8088
 spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8080/realms/${application-properties.realm-name}
+  threads.virtual.enabled: true
+  security.oauth2.resourceserver:
+    jwt.issuer-uri: http://${KEYCLOAK_HOST:localhost:8080}/realms/${application-properties.realm-name}
 logging.level:
   # If you are curious about how Spring Security OAuth2 works behind the scene
   org.springframework.security.oauth2: TRACE
