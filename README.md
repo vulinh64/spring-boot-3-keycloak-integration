@@ -51,7 +51,7 @@ Docker volume. This means your configuration will survive container restarts and
 
 For detailed integration instructions and usage examples, see the comprehensive guide:
 
-> https://vulinh64.github.io/blog/spring-boot-3-keycloak-integration
+> https://vulinhjava.io.vn/blog/spring-boot-3-keycloak-integration
 
 ## Stopping the Services
 
