@@ -19,6 +19,6 @@ public class TestController implements TestAPI {
 
   @Override
   public String adminAccess() {
-    return "Hello %s".formatted(SecurityUtils.getUserDetails().username());
+    return "Hello %s".formatted(SecurityUtils.getUserDetails().getUsername());
   }
 }

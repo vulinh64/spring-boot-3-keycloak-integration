@@ -10,6 +10,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
@@ -48,27 +49,32 @@ public class JwtConverter implements Converter<Jwt, UsernamePasswordAuthenticati
 
     var authorities =
         roleNames.stream()
-            .filter(StringUtils::isNotBlank)
-            .map(String::toUpperCase)
-            .map(SimpleGrantedAuthority::new)
+            // roughly equivalent to:
+            // .filter(StringUtils::nonNull).map(e -> new SimpleGrantedAuthority(e.toUpperCase))
+            .<GrantedAuthority>mapMulti(
+                (element, downstream) -> {
+                  if (StringUtils.isNotBlank(element)) {
+                    downstream.accept(new SimpleGrantedAuthority(element.toUpperCase()));
+                  }
+                })
             .collect(Collectors.toSet());
 
     var userDetails =
-        new SecurityConfig.AuthorizedUserDetails(
-            UUID.fromString(nonMissing(jwt.getSubject(), "subject")),
-            nonMissing(jwt.getClaimAsString("preferred_username"), "username"),
-            nonMissing(jwt.getClaimAsString(EMAIL_CLAIM), EMAIL_CLAIM),
-            authorities);
+        AuthorizedUserDetails.builder()
+            .userId(UUID.fromString(nonMissing(jwt.getSubject(), "subject")))
+            .username(nonMissing(jwt.getClaimAsString("preferred_username"), "username"))
+            .email(nonMissing(jwt.getClaimAsString(EMAIL_CLAIM), EMAIL_CLAIM))
+            .authorities(authorities)
+            .build();
 
     return UsernamePasswordAuthenticationToken.authenticated(
         userDetails, jwt.getTokenValue(), authorities);
   }
 
-  private static <T> T getMapValue(Map<String, T> map, String key, String... origin) {
-    var claimName =
-        ArrayUtils.isEmpty(origin) ? key : "%s.%s".formatted(String.join(".", origin), key);
-
-    return nonMissing(map.get(key), claimName);
+  private static <T> T getMapValue(Map<String, T> map, String key, String... origins) {
+    return nonMissing(
+        map.get(key),
+        ArrayUtils.isEmpty(origins) ? key : "%s.%s".formatted(String.join(".", origins), key));
   }
 
   private static <T> T nonMissing(T object, String name) {
